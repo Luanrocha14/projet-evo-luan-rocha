@@ -21,7 +21,8 @@ class EventController extends Controller
         return view('events.create');
     }
 
-      public function store(Request $request) {
+    public function store(Request $request)
+    {
 
         $event = new Event;
 
@@ -32,7 +33,6 @@ class EventController extends Controller
 
         $event->save();
 
-        return redirect('/');
-
+        return redirect('/')->with('msg', 'Evento criado com sucesso!');
     }
 }
