@@ -111,10 +111,10 @@ header {
 }
 
 #events-container .card {
-  flex: 1 1 200px;
+  flex: 1 1 24px;
   max-width: 25%;
   border-radius: 10px;
-  margin: 10px;
+  margin: .5%px;
   overflow: hidden;
 }
 
