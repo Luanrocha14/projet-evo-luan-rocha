@@ -108,14 +108,21 @@ header {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  gap: 15px;
 }
 
 #events-container .card {
-  flex: 1 1 24px;
-  max-width: 25%;
+  flex: 1 1 22%;
+  max-width: 23%;
   border-radius: 10px;
-  margin: .5%px;
+  margin: 1%;
   overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+#events-container .card:hover {
+  transform: translateY(-5px);
 }
 
 #events-container img {
@@ -139,6 +146,21 @@ header {
 .card-participants {
   font-size: 14px;
   color: #757575;
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+  #events-container .card {
+    flex: 1 1 45%;
+    max-width: 46%;
+  }
+}
+
+@media (max-width: 576px) {
+  #events-container .card {
+    flex: 1 1 90%;
+    max-width: 90%;
+  }
 }
 
 /* Create Event */
@@ -193,6 +215,15 @@ header {
   margin: 20px 0;
 }
 
+#items-list {
+  list-style: nome;
+  padding-left: 0;
+}
+
+#items-list li {
+  display: flex;
+}
+
 /* Footer */
 footer {
   text-align: center;
@@ -200,7 +231,7 @@ footer {
   color: #FFF;
   padding: 30px;
   width: 100%;
-  position: relative; /* corrigido */
+  position: relative;
 }
 
 footer p {
