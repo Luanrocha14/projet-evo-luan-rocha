@@ -4,38 +4,48 @@
 
 @section('content')
 
-    <div id="search-container" class="col-md-12">
-        <h1>Busque um evento</h1>
-        <form action="/" method="GET">
-            <input type="text" id="search" name="search" class="form-control" placeholder="Procurar...">
-        </form>
-    </div>
+<div id="search-container" class="col-md-12">
+    <h1>Busque um evento</h1>
+    <form action="/" method="GET">
+        <input type="text" id="search" name="search" class="form-control" placeholder="Procurar...">
+    </form>
+</div>
 
-    <div id="events-container" class="col-md-12">
+<div id="events-container" class="col-md-12">
+    @if ($search)
+        <h2>Buscando por: {{ $search }}</h2>
+    @else
         <h2>Próximos Eventos</h2>
         <p class="subtitle">Veja os eventos dos próximos dias</p>
+    @endif
 
-        <div id="cards-container" class="row">
+    <div id="cards-container" class="row">
+        @if(count($events) > 0)
             @foreach ($events as $event)
                 <div class="card col-md-3">
                     <img src="/img/events/{{ $event->image }}" alt="{{ $event->title }}">
                     <div class="card-body">
-                        <p class="card-date">{{ date ('d/m/Y', strtotime($event->date))}}</p>
+                        <p class="card-date">{{ date('d/m/Y', strtotime($event->date)) }}</p>
                         <h5 class="card-title">{{ $event->title }}</h5>
                         <p class="card-participants">X Participantes</p>
                         <a href="{{ route('events.show', $event->id) }}" class="btn btn-primary">Saber mais</a>
                     </div>
                 </div>
             @endforeach
-            @if (count($events) == 0)
-                <div class="no-events text-center">
-                    <ion-icon name="calendar-outline"></ion-icon>
-                    <h4>Não há eventos disponíveis no momento</h4>
+        @else
+            <div class="no-events text-center w-100 mt-5">
+                <ion-icon name="calendar-outline" style="font-size:50px; color:#F2A340;"></ion-icon>
+                <h4 class="mt-3">Não há eventos disponíveis no momento</h4>
+                @if($search)
+                    <p>Nenhum evento encontrado com "{{ $search }}".</p>
+                    <a href="/" class="btn btn-primary mt-2">Ver todos os eventos</a>
+                @else
                     <p>Volte mais tarde ou crie um novo evento!</p>
-                    <a href="{{ route('events.create') }}" class="btn btn-primary mt-3">Criar Evento</a>
-                </div>
-            @endif
-        </div>
+                    <a href="{{ route('events.create') }}" class="btn btn-primary mt-2">Criar Evento</a>
+                @endif
+            </div>
+        @endif
     </div>
+</div>
 
 @endsection
