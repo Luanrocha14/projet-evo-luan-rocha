@@ -4,26 +4,29 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class AddImageToEventsTable extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * @return void
      */
-    public function up(): void
+    public function up()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->string('image')->nullable(); // ✅ campo opcional
+            $table->string('image');
         });
     }
 
     /**
      * Reverse the migrations.
+     *
+     * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::table('events', function (Blueprint $table) {
             $table->dropColumn('image');
         });
     }
-};
-
+}
