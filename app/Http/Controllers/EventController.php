@@ -4,25 +4,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Event;
+use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
     public function index()
     {
-
         $search = request('search');
 
-        if($search) {
-
-            $events = Event::where([
-                ['title', 'like', '%'.$search.'%']
-            ])->get();
+        if ($search) {
+            $events = Event::where('title', 'like', '%' . $search . '%')->get();
         } else {
             $events = Event::all();
         }
-        
-        
-        return view('welcome', ['events' => $events, 'search' => $search]);
+
+        return view('welcome', [
+            'events' => $events,
+            'search' => $search,
+        ]);
     }
 
     public function create()
@@ -41,15 +40,15 @@ class EventController extends Controller
         $event->description = $request->description;
         $event->items = $request->items;
 
-        // Upload da imagem
+        // 🟢 Upload da imagem com verificação
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
 
             $requestImage = $request->image;
-
             $extension = $requestImage->extension();
+
             $imageName = md5($requestImage->getClientOriginalName() . strtotime("now")) . "." . $extension;
 
-            // Cria a pasta caso não exista
+            // 🟢 Cria a pasta se não existir
             if (!file_exists(public_path('img/events'))) {
                 mkdir(public_path('img/events'), 0755, true);
             }
@@ -59,6 +58,14 @@ class EventController extends Controller
             $event->image = $imageName;
         }
 
+        // 🟢 Verifica se o usuário está autenticado
+        $user = Auth::user();
+        if ($user) {
+            $event->user_id = $user->id;
+        } else {
+            return redirect('/login')->with('msg', 'Você precisa estar logado para criar um evento!');
+        }
+
         $event->save();
 
         return redirect('/')->with('msg', 'Evento criado com sucesso!');
@@ -66,7 +73,6 @@ class EventController extends Controller
 
     public function show($id)
     {
-
         $event = Event::findOrFail($id);
 
         return view('events.show', ['event' => $event]);

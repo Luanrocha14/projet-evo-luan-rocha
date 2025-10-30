@@ -15,5 +15,9 @@ class Event extends Model
 
     protected $dates = ['date'];
 
+    // ✅ Relacionamento com usuário
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
-
