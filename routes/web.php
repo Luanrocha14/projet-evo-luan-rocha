@@ -7,9 +7,11 @@ use App\Http\Controllers\EventController;
 Route::get('/', [EventController::class, 'index']);
 
 // Rotas protegidas (usuário logado)
-Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
     Route::post('/events', [EventController::class, 'store']);
+    Route::delete('/events/{id}', [EventController::class, 'destroy']);
+    
     Route::get('/dashboard', [EventController::class, 'dashboard'])->name('dashboard');
 });
 
