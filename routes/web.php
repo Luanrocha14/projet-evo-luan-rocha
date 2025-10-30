@@ -3,21 +3,20 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventController;
 
+// Home
 Route::get('/', [EventController::class, 'index']);
-Route::get('/events/create', [EventController::class, 'create'])->middleware('auth')->name('events.create');
-Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
-Route::post('/events', [EventController::class, 'store']);
 
-Route::get('/contact', function () {
-    return view('contact');
+// Rotas protegidas (usuário logado)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+    Route::post('/events', [EventController::class, 'store']);
+    Route::get('/dashboard', [EventController::class, 'dashboard'])->name('dashboard');
 });
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+// Detalhes de um evento (não precisa estar logado)
+Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
+
+// Contato
+Route::get('/contact', function () {
+    return view('contact');
 });

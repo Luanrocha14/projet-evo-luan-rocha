@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
+    // Lista eventos (home)
     public function index()
     {
         $search = request('search');
@@ -25,11 +26,13 @@ class EventController extends Controller
         ]);
     }
 
+    // Formulário para criar evento
     public function create()
     {
         return view('events.create');
     }
 
+    // Salva evento no banco
     public function store(Request $request)
     {
         $event = new Event;
@@ -41,15 +44,13 @@ class EventController extends Controller
         $event->description = $request->description;
         $event->items = $request->items;
 
-        // 🟢 Upload da imagem com verificação
+        // Upload da imagem
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
-
             $requestImage = $request->image;
             $extension = $requestImage->extension();
 
             $imageName = md5($requestImage->getClientOriginalName() . strtotime("now")) . "." . $extension;
 
-            // 🟢 Cria a pasta se não existir
             if (!file_exists(public_path('img/events'))) {
                 mkdir(public_path('img/events'), 0755, true);
             }
@@ -59,7 +60,7 @@ class EventController extends Controller
             $event->image = $imageName;
         }
 
-        // 🟢 Verifica se o usuário está autenticado
+        // Verifica usuário autenticado
         $user = Auth::user();
         if ($user) {
             $event->user_id = $user->id;
@@ -72,12 +73,31 @@ class EventController extends Controller
         return redirect('/')->with('msg', 'Evento criado com sucesso!');
     }
 
+    // Mostra detalhes de um evento
     public function show($id)
     {
         $event = Event::findOrFail($id);
 
-        $eventOwner = User::where('id', $event->user_id)->first()->toArray();
+        // Relacionamento com o dono do evento
+        $eventOwner = $event->user;
 
-        return view('events.show', ['event' => $event, 'eventOwner' => $eventOwner]);
+        return view('events.show', [
+            'event' => $event,
+            'eventOwner' => $eventOwner
+        ]);
+    }
+
+    // Dashboard do usuário
+    public function dashboard()
+    {
+        if (!Auth::check()) {
+            return redirect('/login')->with('msg', 'Você precisa estar logado para acessar o dashboard!');
+        }
+
+        $user = Auth::user();
+        $events = $user->events; // relacionamento hasMany no model User
+
+        return view('events.dashboard', ['events' => $events]);
     }
 }
+
