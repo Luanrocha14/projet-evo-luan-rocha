@@ -3,22 +3,23 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventController;
 
-// Home
 Route::get('/', [EventController::class, 'index']);
 
-// Rotas protegidas (usuário logado)
-    Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
-    Route::post('/events', [EventController::class, 'store']);
-    Route::delete('/events/{id}', [EventController::class, 'destroy']);
-    
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
+    Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('events.edit');
+    Route::put('/events/{id}', [EventController::class, 'update'])->name('events.update');
+    Route::delete('/events/{id}', [EventController::class, 'destroy'])->name('events.destroy');
     Route::get('/dashboard', [EventController::class, 'dashboard'])->name('dashboard');
+    Route::put('/events/update/{id}', [EventController::class, 'update'])->name('events.update.alt');
 });
 
-// Detalhes de um evento (não precisa estar logado)
+// 🌎 Detalhes de um evento (público)
 Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
 
-// Contato
+// 📞 Página de contato
 Route::get('/contact', function () {
     return view('contact');
 });
+

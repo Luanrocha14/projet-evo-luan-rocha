@@ -11,13 +11,23 @@ class Event extends Model
 
     protected $casts = [
         'items' => 'array',
+        'date'  => 'datetime',
     ];
 
-    protected $dates = ['date'];
+    // Campos permitidos para mass assignment
+    protected $fillable = [
+        'title',
+        'date',
+        'city',
+        'private',
+        'description',
+        'items',
+        'image',
+    ];
 
-    // ✅ Relacionamento com usuário
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 }
+
