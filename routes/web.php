@@ -15,11 +15,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/events/update/{id}', [EventController::class, 'update'])->name('events.update.alt');
 });
 
-// 🌎 Detalhes de um evento (público)
 Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
 
-// 📞 Página de contato
 Route::get('/contact', function () {
     return view('contact');
 });
+
+Route::post('/events/join/{id}', [EventController::class, 'joinEvent'])->middleware('auth');
 

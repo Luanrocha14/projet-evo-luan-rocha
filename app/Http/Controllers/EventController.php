@@ -100,6 +100,7 @@ class EventController extends Controller
         return view('events.dashboard', ['events' => $events]);
     }
 
+    // Formulário de edição
     public function edit($id)
     {
         $event = Event::findOrFail($id);
@@ -111,17 +112,14 @@ class EventController extends Controller
         return view('events.edit', compact('event'));
     }
 
-
+    // Atualiza evento
     public function update(Request $request)
     {
+        $data = $request->except(['_token', '_method']); // evita mass assignment
 
-        $data = $request->all();
-
-        // Image Upload
+        // Upload da imagem
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
-
             $requestImage = $request->image;
-
             $extension = $requestImage->extension();
 
             $imageName = md5($requestImage->getClientOriginalName() . strtotime("now")) . "." . $extension;
@@ -134,5 +132,25 @@ class EventController extends Controller
         Event::findOrFail($request->id)->update($data);
 
         return redirect('/dashboard')->with('msg', 'Evento editado com sucesso!');
+    }
+
+    // Confirma participação em evento
+    public function joinEvent($id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect('/login')->with('msg', 'Você precisa estar logado para participar de um evento!');
+        }
+
+        // Evita duplicar participação
+        if ($user->eventsAsParticipant()->where('event_id', $id)->exists()) {
+            return redirect('/dashboard')->with('msg', 'Você já está participando deste evento!');
+        }
+
+        // Relacionamento many-to-many
+        $user->eventsAsParticipant()->attach($id);
+
+        return redirect('/dashboard')->with('msg', 'Sua presença foi confirmada no evento!');
     }
 }
