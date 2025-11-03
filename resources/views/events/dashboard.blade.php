@@ -14,6 +14,7 @@
                     <tr>
                         <th>#</th>
                         <th>Nome</th>
+                        <th>Participantes</th> {{-- ✅ nova coluna --}}
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -22,6 +23,7 @@
                         <tr>
                             <td>{{ $loop->index + 1 }}</td>
                             <td><a href="/events/{{ $event->id }}">{{ $event->title }}</a></td>
+                            <td>{{ $event->users->count() }}</td> {{-- ✅ contador de participantes --}}
                             <td>
                                 <a href="/events/{{ $event->id }}/edit" class="btn btn-info edit-btn">
                                     <ion-icon name="create-outline"></ion-icon> Editar
@@ -43,4 +45,3 @@
         @endif
     </div>
 @endsection
-

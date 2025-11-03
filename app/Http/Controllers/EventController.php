@@ -7,6 +7,8 @@ use App\Models\Event;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
+
+
 class EventController extends Controller
 {
     // Lista eventos (home)
@@ -100,7 +102,6 @@ class EventController extends Controller
         return view('events.dashboard', ['events' => $events]);
     }
 
-    // Formulário de edição
     public function edit($id)
     {
         $event = Event::findOrFail($id);
@@ -112,14 +113,17 @@ class EventController extends Controller
         return view('events.edit', compact('event'));
     }
 
-    // Atualiza evento
+
     public function update(Request $request)
     {
-        $data = $request->except(['_token', '_method']); // evita mass assignment
 
-        // Upload da imagem
+        $data = $request->all();
+
+        // Image Upload
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
+
             $requestImage = $request->image;
+
             $extension = $requestImage->extension();
 
             $imageName = md5($requestImage->getClientOriginalName() . strtotime("now")) . "." . $extension;
@@ -134,23 +138,17 @@ class EventController extends Controller
         return redirect('/dashboard')->with('msg', 'Evento editado com sucesso!');
     }
 
-    // Confirma participação em evento
-    public function joinEvent($id)
-    {
+    public function joinEvent($id) {
+
         $user = Auth::user();
 
-        if (!$user) {
-            return redirect('/login')->with('msg', 'Você precisa estar logado para participar de um evento!');
-        }
-
-        // Evita duplicar participação
-        if ($user->eventsAsParticipant()->where('event_id', $id)->exists()) {
-            return redirect('/dashboard')->with('msg', 'Você já está participando deste evento!');
-        }
-
-        // Relacionamento many-to-many
         $user->eventsAsParticipant()->attach($id);
 
-        return redirect('/dashboard')->with('msg', 'Sua presença foi confirmada no evento!');
+        $event = Event::findOrFail($id);
+
+        return redirect('/dashboard')->with('msg', 'Sua presença está confirmada no evento ' . $event->title);
+
     }
+    
+
 }
