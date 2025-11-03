@@ -113,7 +113,7 @@ class EventController extends Controller
     }
 
     // Atualiza evento
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
         $data = $request->except(['_token', '_method']); // evita mass assignment
 
@@ -130,7 +130,7 @@ class EventController extends Controller
         // Garante que items não fique nulo
         $data['items'] = $data['items'] ?? [];
 
-        Event::findOrFail($request->id)->update($data);
+        Event::findOrFail($id)->update($data);
 
         return redirect('/dashboard')->with('msg', 'Evento editado com sucesso!');
     }
@@ -144,7 +144,6 @@ class EventController extends Controller
             return redirect('/login')->with('msg', 'Você precisa estar logado para participar de um evento!');
         }
 
-        // Evita duplicar participação
         if ($user->eventsAsParticipant()->where('event_id', $id)->exists()) {
             return redirect('/dashboard')->with('msg', 'Você já está participando deste evento!');
         }

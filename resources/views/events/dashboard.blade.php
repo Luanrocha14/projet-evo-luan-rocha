@@ -22,13 +22,13 @@
                 @foreach($events as $event)
                     <tr>
                         <td scope="row">{{ $loop->index + 1 }}</td>
-                        <td><a href="/events/{{ $event->id }}">{{ $event->title }}</a></td>
+                        <td><a href="{{ route('events.show', $event->id) }}">{{ $event->title }}</a></td>
                         <td>{{ $event->users->count() }}</td>
                         <td>
-                            <a href="/events/{{ $event->id }}/edit" class="btn btn-info edit-btn">
+                            <a href="{{ route('events.edit', $event->id) }}" class="btn btn-info edit-btn">
                                 <ion-icon name="create-outline"></ion-icon> Editar
                             </a>
-                            <form action="/events/{{ $event->id }}" method="POST" style="display:inline-block;">
+                            <form action="{{ route('events.destroy', $event->id) }}" method="POST" style="display:inline-block;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger delete-btn">
@@ -41,7 +41,7 @@
             </tbody>
         </table>
     @else
-        <p>Você ainda não criou eventos. <a href="/events/create">Criar evento</a></p>
+        <p>Você ainda não criou eventos. <a href="{{ route('events.create') }}">Criar evento</a></p>
     @endif
 </div>
 
@@ -64,10 +64,10 @@
                 @foreach($eventsAsParticipant as $event)
                     <tr>
                         <td scope="row">{{ $loop->index + 1 }}</td>
-                        <td><a href="/events/{{ $event->id }}">{{ $event->title }}</a></td>
+                        <td><a href="{{ route('events.show', $event->id) }}">{{ $event->title }}</a></td>
                         <td>{{ $event->users->count() }}</td>
                         <td>
-                            <form action="/events/leave/{{ $event->id }}" method="POST" style="display:inline-block;">
+                            <form action="{{ route('events.leave', $event->id) }}" method="POST" style="display:inline-block;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-warning">
@@ -80,7 +80,7 @@
             </tbody>
         </table>
     @else
-        <p>Você ainda não está participando de nenhum evento. <a href="/">Veja todos os eventos</a></p>
+        <p>Você ainda não está participando de nenhum evento. <a href="{{ route('home') }}">Veja todos os eventos</a></p>
     @endif
 </div>
 @endsection
