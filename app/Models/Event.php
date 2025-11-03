@@ -25,15 +25,20 @@ class Event extends Model
         'image',
     ];
 
+    // Dono do evento
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(\App\Models\User::class);
     }
 
+    // Usuários que participam do evento (many-to-many)
     public function users()
-{
-    return $this->belongsToMany(\App\Models\User::class);
+    {
+        return $this->belongsToMany(
+            \App\Models\User::class,   // Modelo relacionado
+            'event_user',              // Nome da tabela pivot
+            'event_id',                // Foreign key deste modelo na tabela pivot
+            'user_id'                  // Foreign key do modelo relacionado na tabela pivot
+        )->withTimestamps();
+    }
 }
-
-}
-

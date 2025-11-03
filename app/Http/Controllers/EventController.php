@@ -41,9 +41,10 @@ class EventController extends Controller
         $event->city = $request->city;
         $event->private = $request->private;
         $event->description = $request->description;
-        $event->items = $request->items;
+        $event->items = $request->items ?? []; // garante array vazio se não houver itens
 
-        // Upload da imagem
+        // Upload de imagem
+        $event->image = 'default.jpg'; // imagem padrão caso não seja enviada
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $requestImage = $request->image;
             $extension = $requestImage->extension();
@@ -101,16 +102,10 @@ class EventController extends Controller
     // Formulário de edição
     public function edit($id)
     {
-
         $user = Auth::user();
-
         $event = Event::findOrFail($id);
 
-        if($user->id != $event->user->id) {
-            return redirect('/dashboard');
-        }
-
-        if ($event->user_id != Auth::id()) {
+        if ($event->user_id != $user->id) {
             return redirect('/dashboard')->with('msg', 'Você não tem permissão para editar este evento.');
         }
 
@@ -122,6 +117,7 @@ class EventController extends Controller
     {
         $data = $request->except(['_token', '_method']); // evita mass assignment
 
+        // Upload de imagem
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $requestImage = $request->image;
             $extension = $requestImage->extension();
@@ -130,6 +126,9 @@ class EventController extends Controller
             $requestImage->move(public_path('img/events'), $imageName);
             $data['image'] = $imageName;
         }
+
+        // Garante que items não fique nulo
+        $data['items'] = $data['items'] ?? [];
 
         Event::findOrFail($request->id)->update($data);
 
@@ -155,5 +154,30 @@ class EventController extends Controller
         $event = Event::findOrFail($id);
 
         return redirect('/dashboard')->with('msg', 'Sua presença está confirmada no evento ' . $event->title);
+    }
+
+    // Sai de um evento
+    public function leaveEvent($id)
+    {
+        $user = Auth::user();
+        $user->eventsAsParticipant()->detach($id);
+
+        $event = Event::findOrFail($id);
+
+        return redirect('/dashboard')->with('msg', 'Você saiu com sucesso do evento: ' . $event->title);
+    }
+
+    // Deleta evento
+    public function destroy($id)
+    {
+        $event = Event::findOrFail($id);
+
+        if ($event->user_id != auth()->id()) {
+            return redirect('/dashboard')->with('msg', 'Você não tem permissão para deletar este evento.');
+        }
+
+        $event->delete();
+
+        return redirect('/dashboard')->with('msg', 'Evento deletado com sucesso!');
     }
 }
