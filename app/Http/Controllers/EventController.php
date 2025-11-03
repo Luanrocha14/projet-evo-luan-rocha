@@ -4,10 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Event;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-
-
 
 class EventController extends Controller
 {
@@ -50,7 +47,6 @@ class EventController extends Controller
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $requestImage = $request->image;
             $extension = $requestImage->extension();
-
             $imageName = md5($requestImage->getClientOriginalName() . strtotime("now")) . "." . $extension;
 
             if (!file_exists(public_path('img/events'))) {
@@ -58,11 +54,9 @@ class EventController extends Controller
             }
 
             $requestImage->move(public_path('img/events'), $imageName);
-
             $event->image = $imageName;
         }
 
-        // Verifica usuário autenticado
         $user = Auth::user();
         if ($user) {
             $event->user_id = $user->id;
@@ -79,8 +73,6 @@ class EventController extends Controller
     public function show($id)
     {
         $event = Event::findOrFail($id);
-
-        // Relacionamento com o dono do evento
         $eventOwner = $event->user;
 
         return view('events.show', [
@@ -97,14 +89,26 @@ class EventController extends Controller
         }
 
         $user = Auth::user();
-        $events = $user->events; // relacionamento hasMany no model User
+        $events = $user->events; // eventos criados pelo usuário
+        $eventsAsParticipant = $user->eventsAsParticipant; // eventos que ele participa
 
-        return view('events.dashboard', ['events' => $events]);
+        return view('events.dashboard', [
+            'events' => $events,
+            'eventsAsParticipant' => $eventsAsParticipant
+        ]);
     }
 
+    // Formulário de edição
     public function edit($id)
     {
+
+        $user = Auth::user();
+
         $event = Event::findOrFail($id);
+
+        if($user->id != $event->user->id) {
+            return redirect('/dashboard');
+        }
 
         if ($event->user_id != Auth::id()) {
             return redirect('/dashboard')->with('msg', 'Você não tem permissão para editar este evento.');
@@ -113,23 +117,17 @@ class EventController extends Controller
         return view('events.edit', compact('event'));
     }
 
-
+    // Atualiza evento
     public function update(Request $request)
     {
+        $data = $request->except(['_token', '_method']); // evita mass assignment
 
-        $data = $request->all();
-
-        // Image Upload
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
-
             $requestImage = $request->image;
-
             $extension = $requestImage->extension();
-
             $imageName = md5($requestImage->getClientOriginalName() . strtotime("now")) . "." . $extension;
 
             $requestImage->move(public_path('img/events'), $imageName);
-
             $data['image'] = $imageName;
         }
 
@@ -138,17 +136,24 @@ class EventController extends Controller
         return redirect('/dashboard')->with('msg', 'Evento editado com sucesso!');
     }
 
-    public function joinEvent($id) {
-
+    // Confirma participação em evento
+    public function joinEvent($id)
+    {
         $user = Auth::user();
+
+        if (!$user) {
+            return redirect('/login')->with('msg', 'Você precisa estar logado para participar de um evento!');
+        }
+
+        // Evita duplicar participação
+        if ($user->eventsAsParticipant()->where('event_id', $id)->exists()) {
+            return redirect('/dashboard')->with('msg', 'Você já está participando deste evento!');
+        }
 
         $user->eventsAsParticipant()->attach($id);
 
         $event = Event::findOrFail($id);
 
         return redirect('/dashboard')->with('msg', 'Sua presença está confirmada no evento ' . $event->title);
-
     }
-    
-
 }
